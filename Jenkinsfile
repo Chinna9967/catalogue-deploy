@@ -15,18 +15,18 @@ pipeline {
         }
         stage('Init'){
             steps{
-                sh """
+                sh '''
                     cd terraform
                     terraform init -reconfigure
-                """
+                '''
             }
         }
         stage('Plan'){
             steps{
-                sh """
+                sh '''
                     cd terraform
                     terraform plan -var="app_version=${params.version}" -lock=false
-                """
+                '''
             }
         }
     }
