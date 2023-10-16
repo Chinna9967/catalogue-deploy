@@ -44,6 +44,72 @@ resource "null_resource" "cluster" {
   }
 }
 
+# stop instance to take AMI
+resource "aws_ec2_instance_state" "catalogue_instance" {
+  instance_id = module.catalogue_instance.id
+  state       = "stopped"
+  depends_on = [ null_resource.cluster ]
+}
+
+# take ami from existing instance
+resource "aws_ami_from_instance" "catalogue_ami" {
+  name               = "${var.common_tags.Component}-${local.current_time}"
+  source_instance_id = module.catalogue_instance
+  depends_on = [ aws_ec2_instance_state.catalogue_instance ]
+}
+
+resource "null_resource" "delete_instance" {
+  # Changes to any instance of the cluster requires re-provisioning
+  triggers = {
+    ami_id = aws_ami_from_instance.catalogue_ami.id
+  }
+
+  provisioner "local-exec" {
+    # Bootstrap script called with private_ip of each node in the cluster
+    command = "aws ec2 terminate-instances --instance-ids ${module.catalogue_instance.id}"
+  }
+  depends_on = [ aws_ami_from_instance.catalogue_ami ]
+}
+
+resource "aws_lb_target_group" "catalogue" {
+  name     = "${var.project_name}-${var.common_tags.Component}-${var.env}"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = data.aws_ssm_parameter.vpc_id.value
+  health_check {
+    enabled = true
+    healthy_threshold = 2 # consider as healthy if 2 health checks are success
+    interval = 15
+    matcher = "200-299"
+    path = "/health"
+    port = 8080
+    protocol = "HTTP"
+    timeout = 5
+    unhealthy_threshold = 3
+  }
+}
+
+resource "aws_launch_template" "catalogue" {
+  name = "${var.project_name}-${var.common_tags.Component}-${var.env}"
+
+  #image created in this deployment
+  image_id = aws_ami_from_instance.catalogue_ami.id
+  instance_initiated_shutdown_behavior = "terminate"
+  instance_type = "t2.micro"
+
+  vpc_security_group_ids = [data.aws_ssm_parameter.catalogue_sg_id.value]
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "Catalogue"
+    }
+  }
+  # not required, because we already prepared AMI
+  #user_data = filebase64("${path.module}/catalogue.sh")
+}
+
 output "app_version" {
   value = var.app_version
 }
