@@ -54,7 +54,7 @@ resource "aws_ec2_instance_state" "catalogue_instance" {
 # take ami from existing instance
 resource "aws_ami_from_instance" "catalogue_ami" {
   name               = "${var.common_tags.Component}-${local.current_time}"
-  source_instance_id = module.catalogue_instance
+  source_instance_id = module.catalogue_instance.id
   depends_on = [ aws_ec2_instance_state.catalogue_instance ]
 }
 
