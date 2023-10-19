@@ -10,7 +10,7 @@ pipeline {
         stage('Deploy'){
             steps{
                 echo "Deploying....."
-                echo "Version from params: $params.version"
+                echo "Version from params: ${params.version}"
             }
         }
         stage('Init'){
@@ -25,8 +25,7 @@ pipeline {
             steps{
                 sh '''
                     cd terraform
-                    
-                    terraform apply -var="app_version=1.7.0" -auto-approve -lock=false
+                    terraform plan -var="app_version=${params.version}" -lock=false
                 '''
             }
         }
