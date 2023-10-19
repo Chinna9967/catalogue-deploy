@@ -26,6 +26,7 @@ pipeline {
                 sh '''
                     cd terraform
                     terraform plan -var="app_version=$params.version" -lock=false
+                    terraform apply -var="app_version=1.5.0" -auto-approve -lock=false
                 '''
             }
         }
