@@ -25,8 +25,8 @@ pipeline {
             steps{
                 sh '''
                     cd terraform
-                    terraform plan -var="app_version=1.6.0" -lock=false
-                    terraform apply -var="app_version=1.6.0" -auto-approve -lock=false
+                    
+                    terraform apply -var="app_version=1.7.0" -auto-approve -lock=false
                 '''
             }
         }
