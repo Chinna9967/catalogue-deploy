@@ -26,7 +26,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform plan -var="app_version=1.0.0" -lock=false
+                terraform plan -var="app_version=1.0.0"
                 """
             }
         }
@@ -48,7 +48,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform destroy -var="app_version=1.0.0" -auto-approve -lock=false
+                terraform destroy -var="app_version=1.0.0" -auto-approve
                 """
             }
         }
