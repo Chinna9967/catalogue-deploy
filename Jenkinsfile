@@ -48,7 +48,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform apply -var="app_version=${params.version}" -auto-approve -lock=false
+                terraform apply -var="app_version=1.0.0" -auto-approve -lock=false
                 """
             }
         }
