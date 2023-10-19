@@ -25,7 +25,7 @@ pipeline {
             steps{
                 sh '''
                     cd terraform
-                    terraform apply -var="app_version=1.9.0" -auto-approve -lock=false
+                    terraform apply -var="app_version=$params.version" -auto-approve -lock=false
                 '''
             }
         }
@@ -34,7 +34,7 @@ pipeline {
     post{
         always{
             echo "cleaning up workspace"
-            //deleteDir()
+            deleteDir()
         }
     }
 }
