@@ -76,6 +76,7 @@ resource "aws_lb_target_group" "catalogue" {
   port     = 8080
   protocol = "HTTP"
   vpc_id   = data.aws_ssm_parameter.vpc_id.value
+  deregistration_delay = 60
   health_check {
     enabled = true
     healthy_threshold = 2 # consider as healthy if 2 health checks are success
@@ -111,7 +112,7 @@ resource "aws_launch_template" "catalogue" {
 }
 
 resource "aws_autoscaling_group" "catalogue" {
-  name                      = "${var.project_name}-${var.common_tags.Component}-${var.env}"
+  name                      = "${var.project_name}-${var.common_tags.Component}-${var.env}-${local.current_time}"
   max_size                  = 5
   min_size                  = 2
   health_check_grace_period = 300
@@ -132,6 +133,10 @@ resource "aws_autoscaling_group" "catalogue" {
 
   timeouts {
     delete = "15m"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -160,7 +165,8 @@ resource "aws_lb_listener_rule" "catalogue" {
 
   condition {
     host_header {
-      values = ["catalogue.app.kpdigital.online"]
+      # for dev instance it should be app-dev, for prod it should be app-prod
+      values = ["${var.common_tags.Component}.app-${var.env}.${var.domain_name}"]
     }
   }
 }
