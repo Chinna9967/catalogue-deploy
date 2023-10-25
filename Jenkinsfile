@@ -27,7 +27,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform plan -var-file=${params.environment}/${params.environment}.tfvars -var="app_version=${params.version}" -var="env=${params.environment}" -lock=false
+                terraform plan -var-file=${params.environment}/devt.tfvars -var="app_version=${params.version}" -var="env=${params.environment}" -lock=false
                 """
             }
         }
@@ -49,7 +49,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform apply -var-file=${params.environment}/${params.environment}.tfvars -var="app_version=${params.version}" -var="env=${params.environment}" -auto-approve -lock=false
+                terraform apply -var-file=${params.environment}/devt.tfvars -var="app_version=${params.version}" -var="env=${params.environment}" -auto-approve -lock=false
                 """
             }
         }
