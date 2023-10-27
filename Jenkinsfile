@@ -27,7 +27,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform plan -var="app_version=${params.version}" -var="env=${params.environment}"
+                terraform plan -var="app_version=${params.version}" -var="env=${params.environment}" -lock=false
                 """
             }
         }
@@ -49,7 +49,7 @@ pipeline {
             steps{
                 sh """
                 cd terraform
-                terraform apply -var="app_version=${params.version}" -var="env=${params.environment}" -auto-approve
+                terraform apply -var="app_version=${params.version}" -var="env=${params.environment}" -auto-approve -lock=false
                 """
             }
         }
